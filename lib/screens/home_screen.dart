@@ -1,5 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:rec_music/spotify.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -59,38 +61,46 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Color(0xFFA79277),
                             )),
                 ),
-                if (isPlaying) ...[
-                  AutoSizeText(
-                    musicName,
-                    style: const TextStyle(
-                      fontSize: 32,
+                if(isPlaying) Column(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 24,
+                      child: AutoSizeText(
+                        musicName,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 32,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    minFontSize: 16,
-                    maxFontSize: 32,
-                  ),
-                  AutoSizeText(
-                    musicAlbum,
-                    style: const TextStyle(
-                      fontSize: 24,
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 24,
+                      child: AutoSizeText(
+                        musicAlbum,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 24,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    minFontSize: 16,
-                    maxFontSize: 32,
-                  ),
-                  AutoSizeText(
-                    musicArtist,
-                    style: const TextStyle(
-                      fontSize: 24,
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 24,
+                      child: AutoSizeText(
+                        musicArtist,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 24,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    minFontSize: 16,
-                    maxFontSize: 32,
-                  ),
-                ]
+                  ],
+                ),
               ],
             ),
           ],
