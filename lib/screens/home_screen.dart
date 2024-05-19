@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:rec_music/screens/setting_screen.dart';
 import 'package:rec_music/spotify.dart';
 
+import '../prefs.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -19,20 +21,38 @@ class _HomeScreenState extends State<HomeScreen> {
   String musicAlbumImageUrl = "";
 
   void getMusic() {
-    setState(() {
-      isLoaded = false;
-      isClicked = true;
-    });
-    Spotify.getMusic().then((music) {
-      setState(() {
-        musicName = music.name ?? "곡 이름";
-        musicAlbum = music.album?.name ?? "앨범";
-        musicArtist = music.artists?.first.name ?? "아티스트";
-        musicAlbumImageUrl =
-            music.album?.images?.first.url ?? "https://http.cat/400";
-        isLoaded = true;
-        isClicked = false;
-      });
+    Prefs.getGenre().then((genre) => {
+      if(genre != null && genre.isNotEmpty) {
+        setState(() {
+          isLoaded = false;
+          isClicked = true;
+        }),
+        Spotify.getMusic(genre).then((music) {
+          setState(() {
+            musicName = music.name ?? "곡 이름";
+            musicAlbum = music.album?.name ?? "앨범";
+            musicArtist = music.artists?.first.name ?? "아티스트";
+            musicAlbumImageUrl =
+                music.album?.images?.first.url ?? "https://http.cat/400";
+            isLoaded = true;
+            isClicked = false;
+          });
+        })
+      } else {
+        showDialog<String>(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+            title: const Text('Genre not selected.'),
+            content: const Text('Please select at least one genre.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'OK'),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        ),
+      }
     });
   }
 
@@ -148,7 +168,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const SettingScreen()),
+                            MaterialPageRoute(
+                                builder: (context) => const SettingScreen()),
                           );
                         },
                       ),

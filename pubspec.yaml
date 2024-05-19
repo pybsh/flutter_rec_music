@@ -38,6 +38,8 @@ dependencies:
   flutter_dotenv: ^5.1.0
   spotify: ^0.13.6+1
   auto_size_text: ^3.0.0
+  chip_list: ^3.0.0
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:
