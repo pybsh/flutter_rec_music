@@ -40,6 +40,8 @@ dependencies:
   auto_size_text: ^3.0.0
   chip_list: ^3.0.0
   shared_preferences: ^2.2.3
+  url_launcher: ^6.2.6
+  dropdown_search: ^5.0.6
 
 dev_dependencies:
   flutter_test:

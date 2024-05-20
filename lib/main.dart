@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:rec_music/prefs.dart';
 import 'package:rec_music/screens/home_screen.dart';
 
 Future main() async{

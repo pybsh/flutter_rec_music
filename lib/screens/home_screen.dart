@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:rec_music/screens/setting_screen.dart';
 import 'package:rec_music/spotify.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../prefs.dart';
 
@@ -19,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String musicAlbum = "-";
   String musicArtist = "-";
   String musicAlbumImageUrl = "";
+  String musicURL = "https://http.cat/400";
 
   void getMusic() {
     Prefs.getGenre().then((genre) => {
@@ -34,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
             musicArtist = music.artists?.first.name ?? "아티스트";
             musicAlbumImageUrl =
                 music.album?.images?.first.url ?? "https://http.cat/400";
+            musicURL = music.externalUrls?.spotify ?? "https://http.cat/400";
             isLoaded = true;
             isClicked = false;
           });
@@ -143,16 +146,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(
-                          Icons.not_interested_outlined,
+                          Icons.headset_rounded,
                           size: 50,
                           color: Color(0xFFA79277),
                         ),
-                        onPressed: () {},
+                        onPressed: _launchUrl,
                       ),
                       const SizedBox(width: 50),
                       IconButton(
                         icon: const Icon(
-                          Icons.my_library_music_rounded,
+                          Icons.download,
                           size: 50,
                           color: Color(0xFFA79277),
                         ),
@@ -181,4 +184,27 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ));
   }
+
+  Future<void> _launchUrl() async {
+    if(isLoaded) {
+      if (!await launchUrl(Uri.parse(musicURL))) {
+        throw Exception('Could not launch $musicURL');
+      }
+    } else {
+      showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Music not loaded'),
+          content: const Text('Please load music first.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'OK'),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
 }

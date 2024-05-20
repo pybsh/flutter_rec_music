@@ -1,4 +1,4 @@
-import 'package:chip_list/chip_list.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:rec_music/prefs.dart';
 import 'package:rec_music/screens/home_screen.dart';
@@ -139,14 +139,26 @@ class _SettingScreenState extends State<SettingScreen> {
     "work-out",
     "world-music"
   ];
-  List<int> _currentIndex = [];
+  List<String> _currentGenre = [];
+
+  void setGenreList(List<String> list) {
+    setState(() {
+      _currentGenre = list;
+    });
+    print(_currentGenre);
+    print(_currentGenre.length);
+  }
+
+  bool disabledItemFn(String? item) {
+    return _currentGenre.length > 5 ? true : false;
+  }
 
   @override
   void initState() {
     Prefs.getGenre().then((genre) {
       if (genre != null) {
         setState(() {
-          _currentIndex = genre.map((e) => _genreList.indexOf(e)).toList();
+          _currentGenre = genre;
         });
       }
     });
@@ -160,7 +172,9 @@ class _SettingScreenState extends State<SettingScreen> {
           title: const Text("Settings"),
           leading: IconButton(
             onPressed: () {
-              Prefs.setGenre(_currentIndex.map((e) => _genreList[e]).toList());
+              setState(() {
+                Prefs.setGenre(_currentGenre);
+              });
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -176,29 +190,21 @@ class _SettingScreenState extends State<SettingScreen> {
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
-                    ExpansionTile(
-                      title: const Text(
-                        "Genre Setting",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
+                    DropdownSearch<String>.multiSelection(
+                      items: _genreList,
+                      dropdownDecoratorProps: const DropDownDecoratorProps(
+                        dropdownSearchDecoration: InputDecoration(
+                          labelText: "Genre Settings",
+                          hintText: "Select Genre",
                         ),
                       ),
-                      children: [
-                        ChipList(
-                          listOfChipNames: _genreList,
-                          listOfChipIndicesCurrentlySelected: _currentIndex,
-                          inactiveBgColorList: [Theme.of(context).cardColor],
-                          inactiveTextColorList: const [Color(0xFFA79277)],
-                          activeBgColorList: const [Color(0xFFA79277)],
-                          activeTextColorList: [Theme.of(context).cardColor],
-                          supportsMultiSelect: true,
-                          shouldWrap: true,
-                          runSpacing: 10,
-                          spacing: 10,
-                        ),
-                      ],
-                    ),
+                      popupProps: const PopupPropsMultiSelection.menu(
+                        showSelectedItems: true,
+                        showSearchBox: true,
+                      ),
+                      onChanged: setGenreList,
+                      selectedItems: _currentGenre,
+                    )
                   ],
                 ),
               ),
