@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:rec_music/screens/setting_screen.dart';
 import 'package:rec_music/spotify.dart';
+import 'package:spotify/spotify.dart' as spotify;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../prefs.dart';
@@ -21,42 +22,52 @@ class _HomeScreenState extends State<HomeScreen> {
   String musicArtist = "-";
   String musicAlbumImageUrl = "";
   String musicURL = "https://http.cat/400";
+  spotify.Market? market;
 
   void getMusic() {
-    Prefs.getGenre().then((genre) => {
-      if(genre != null && genre.isNotEmpty) {
-        setState(() {
-          isLoaded = false;
-          isClicked = true;
-        }),
-        Spotify.getMusic(genre).then((music) {
-          setState(() {
-            musicName = music.name ?? "곡 이름";
-            musicAlbum = music.album?.name ?? "앨범";
-            musicArtist = music.artists?.first.name ?? "아티스트";
-            musicAlbumImageUrl =
-                music.album?.images?.first.url ?? "https://http.cat/400";
-            musicURL = music.externalUrls?.spotify ?? "https://http.cat/400";
-            isLoaded = true;
-            isClicked = false;
-          });
-        })
-      } else {
-        showDialog<String>(
-          context: context,
-          builder: (BuildContext context) => AlertDialog(
-            title: const Text('Genre not selected.'),
-            content: const Text('Please select at least one genre.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.pop(context, 'OK'),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        ),
-      }
-    });
+    Prefs.getLocale().then((locale) => {
+          Prefs.getGenre().then((genre) => {
+                if (genre != null && genre.isNotEmpty)
+                  {
+                    setState(() {
+                      isLoaded = false;
+                      isClicked = true;
+                    }),
+                    market =
+                        locale != null ? spotify.Market.values.byName(locale) : null,
+                    Spotify.getMusic(genre, market).then((music) {
+                      setState(() {
+                        musicName = music.name ?? "곡 이름";
+                        musicAlbum = music.album?.name ?? "앨범";
+                        musicArtist = music.artists?.first.name ?? "아티스트";
+                        musicAlbumImageUrl = music.album?.images?.first.url ??
+                            "https://http.cat/400";
+                        musicURL = music.externalUrls?.spotify ??
+                            "https://http.cat/400";
+                        isLoaded = true;
+                        isClicked = false;
+                      });
+                    })
+                  }
+                else
+                  {
+                    showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        title: const Text('Genre not selected.'),
+                        content:
+                            const Text('Please select at least one genre.'),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, 'OK'),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  }
+              })
+        });
   }
 
   @override
@@ -186,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _launchUrl() async {
-    if(isLoaded) {
+    if (isLoaded) {
       if (!await launchUrl(Uri.parse(musicURL))) {
         throw Exception('Could not launch $musicURL');
       }
@@ -206,5 +217,4 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
-
 }

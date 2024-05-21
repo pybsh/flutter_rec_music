@@ -2,6 +2,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:rec_music/prefs.dart';
 import 'package:rec_music/screens/home_screen.dart';
+import 'package:spotify/spotify.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -139,14 +140,20 @@ class _SettingScreenState extends State<SettingScreen> {
     "work-out",
     "world-music"
   ];
+  final List<String> _localeList = Market.values.map((e) => e.name).toList();
   List<String> _currentGenre = [];
+  String? _locale = "";
 
   void setGenreList(List<String> list) {
     setState(() {
       _currentGenre = list;
     });
-    print(_currentGenre);
-    print(_currentGenre.length);
+  }
+
+  void setLocale(String? locale) {
+    setState(() {
+      _locale = locale;
+    });
   }
 
   bool disabledItemFn(String? item) {
@@ -156,11 +163,14 @@ class _SettingScreenState extends State<SettingScreen> {
   @override
   void initState() {
     Prefs.getGenre().then((genre) {
-      if (genre != null) {
-        setState(() {
-          _currentGenre = genre;
-        });
-      }
+      Prefs.getLocale().then((locale) {
+        if (genre != null && locale != null) {
+          setState(() {
+            _currentGenre = genre;
+            _locale = locale;
+          });
+        }
+      });
     });
     super.initState();
   }
@@ -174,6 +184,7 @@ class _SettingScreenState extends State<SettingScreen> {
             onPressed: () {
               setState(() {
                 Prefs.setGenre(_currentGenre);
+                Prefs.setLocale(_locale!);
               });
               Navigator.push(
                 context,
@@ -204,6 +215,28 @@ class _SettingScreenState extends State<SettingScreen> {
                       ),
                       onChanged: setGenreList,
                       selectedItems: _currentGenre,
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    DropdownSearch<String>(
+                      items: _localeList,
+                      dropdownDecoratorProps: const DropDownDecoratorProps(
+                        dropdownSearchDecoration: InputDecoration(
+                          labelText: "Market Settings",
+                          hintText: "Select Locale",
+                        ),
+                      ),
+                      popupProps: const PopupPropsMultiSelection.menu(
+                        showSelectedItems: true,
+                        showSearchBox: true,
+                      ),
+                      onChanged: setLocale,
+                      selectedItem: _locale,
                     )
                   ],
                 ),
